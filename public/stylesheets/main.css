@@ -1,0 +1,64 @@
+.menu i {
+    font-size: 1.30em;
+}
+i.idea {
+    font-size:2em;
+}
+
+.ui.grid {
+    margin-top: 3em;
+}
+#delete {
+    display: inline;
+}
+
+#delete button {
+    display: inline;
+    width: 49%;
+    margin: 20px auto;
+}
+
+#delete button:hover {
+    background-color: #d42f12;
+}
+
+#edit {
+    width: 49%;
+    margin: 20px auto;
+
+}
+#edit:hover {
+    background-color: #f0cd00;
+}
+
+#delete-user {
+    width: 100%;
+    margin: 2% auto;
+}
+#delete-user:hover {
+    background-color: #f0cd00;
+}
+#delete-user button:hover{
+    background-color: #d42f12;
+}
+
+.delete-comment {
+    text-align: right;
+}
+.delete-comment a.button.ui.compact:hover {
+    background-color: #f0cd00;
+}
+.delete-comment form{
+    display: inline;
+}
+.delete-comment form button.button.ui.compact:hover {
+    background-color: #d42f12;
+}
+
+#comment:nth-of-type(2n) {
+    background-color: #f7f7f7;
+}
+
+a.green.right.button {
+    margin-bottom: 2%;
+}

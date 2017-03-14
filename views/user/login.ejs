@@ -1,0 +1,21 @@
+<% include ../partials/header.ejs %>
+
+<div class="ui grid">
+    <div class="ui main text container segment">
+        <h1 class="ui header huge">Login</h1>
+        <form class="ui form" action="/login" method="post">
+            <div class="field">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Username">
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Password">
+            </div>
+            <button class="ui right floated black small button">Submit</button>
+        </form>
+    </div>
+</div>
+
+
+<% include ../partials/footer.ejs %>

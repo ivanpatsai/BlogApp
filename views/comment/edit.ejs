@@ -1,0 +1,16 @@
+<% include ../partials/header.ejs %>
+
+<div class="ui grid">
+    <div class="ui main text container segment">
+        <div class="ui huge header">Edit comment</div>
+        <form class="ui form" action="/blogs/<%= blog_id %>/comments/<%= comment._id%>?_method=PUT" method="post">
+            <div class="field">
+                <label>Text</label>
+                <input type="text" name="comment[text]" placeholder="title" value="<%= comment.text%>">
+            </div>
+            <input type="submit" class="ui black button fluid">
+        </form>
+    </div>
+</div>
+
+<% include ../partials/footer.ejs %>

@@ -1,0 +1,60 @@
+<% include ../partials/header.ejs %>
+
+
+<div class="ui grid">
+    <div class="row">
+        <div class="four wide column">
+            <div class="ui top segment">
+                <img class="ui centered small image" src="<%= user.image %>" alt="image">
+                <h3 class="ui center aligned header"><%= user.fname + ' ' + user.lname %></h3>
+                <% if (currentUser && currentUser._id.equals(user._id)) {%>
+                <a id="delete-user" class="ui black small button fluid" href="/id<%= user._id %>/edit">Edit Profile</a>
+                <form id="delete-user" action="/id<%= user._id %>?_method=DELETE" method="post">
+                    <button class="ui black small button fluid">Delete Profile</button>
+                </form>
+                <% } %>
+            </div>
+        </div>
+        <div class="ten wide column">
+            <div class="ui main text container">
+                <% user.blogs.forEach(function (blog) { %>
+                <div class="ui top attached segment">
+                    <div class="ui items">
+                        <div class="item">
+                            <div class="ui small image">
+                                <img src="<%= blog.image %>" alt="image">
+                            </div>
+                            <div class="content">
+                                <a href="/blogs/<%= blog._id %>" class="header"><%= blog.title %></a>
+                                <div class="meta">
+                                    <span> <%= blog.created.toDateString() %> </span>
+                                </div>
+                                <div class="description">
+                                    <p>
+                                        <% if (blog.body.length < 303){ %>
+                                        <%= blog.body %>
+                                        <% } else { %>
+                                        <%= blog.body.substring(0, 300) + '...' %>
+                                        <% } %>
+                                    </p>
+                                </div>
+                                <div class="extra">
+                                    <a href="/blogs/<%= blog._id %>" class="ui right labeled icon mini black button">
+                                        Read More
+                                        <i class="small right chevron icon"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<% include ../partials/footer.ejs %>
+
+

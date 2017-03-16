@@ -1,3 +1,4 @@
+require('./config/config');
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
@@ -7,12 +8,12 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local');
 var User = require('./models/user');
 var seedDB = require('./seed');
-var port = process.env.PORT || 3000;
-var mongodb_uri = process.env.MONGODB_URI || 'mongodb://localhost/my_blog_app';
-var secret = process.env.SECRET || 'secret';
+var cloudinary = require('cloudinary');
+var multer = require('multer');
+var fs = require('fs');
 
 //wipe db and fill up with new data
-//seedDB();
+// seedDB();
 
 //requiring routes
 var commentRoutes = require('./routes/comments');
@@ -21,7 +22,7 @@ var userRoutes = require('./routes/users');
 var indexRoutes = require('./routes/index');
 var app = express();
 
-mongoose.connect(mongodb_uri);
+mongoose.connect(process.env.MONGODB_URI);
 
 app.set('view engine', 'ejs');
 //path to static folder
@@ -34,7 +35,7 @@ app.use(methodOverride('_method'));
 
 //Passport config
 app.use(require('express-session')({
-    secret: secret,
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false
 }));
@@ -53,6 +54,8 @@ app.use(function (req, res, next) {
     res.locals.currentUser = req.user;
     next();
 });
+//allows user to upload files(images)
+app.use(multer({dest: './routes/tmp'}).single('image'));
 
 app.use('/', indexRoutes);
 app.use('/', userRoutes);
@@ -60,6 +63,6 @@ app.use('/blogs/:id/comments', commentRoutes);
 app.use('/blogs', blogRoutes);
 
 
-app.listen(port, function () {
-    console.log('Server is up on port ' + port + '.');
+app.listen(process.env.PORT, function () {
+    console.log('Server is up on port ' + process.env.PORT + '!');
 });

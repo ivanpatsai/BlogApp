@@ -5,7 +5,7 @@
     <div class="row">
         <div class="four wide column">
             <div class="ui top segment">
-                <img class="ui centered small image" src="<%= user.image %>" alt="image">
+                <img class="ui centered small image" src="<%= user.image.url %>" alt="image">
                 <h3 class="ui center aligned header"><%= user.fname + ' ' + user.lname %></h3>
                 <% if (currentUser && currentUser._id.equals(user._id)) {%>
                 <a id="delete-user" class="ui black small button fluid" href="/id<%= user._id %>/edit">Edit Profile</a>
@@ -22,7 +22,7 @@
                     <div class="ui items">
                         <div class="item">
                             <div class="ui small image">
-                                <img src="<%= blog.image %>" alt="image">
+                                <img src="<%= blog.image.url %>" alt="image">
                             </div>
                             <div class="content">
                                 <a href="/blogs/<%= blog._id %>" class="header"><%= blog.title %></a>

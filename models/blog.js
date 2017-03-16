@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var blogSchema = new mongoose.Schema(
     {
         title: String,
-        image: String,
+        image: mongoose.Schema.Types.Mixed,
         body: String,
         //reference to user that created this blog
         author: {
@@ -13,7 +13,7 @@ var blogSchema = new mongoose.Schema(
             },
             fname: String,
             lname: String,
-            image: String
+            image: mongoose.Schema.Types.Mixed
         },
         //reference to comments that are related with this blog
         comments: [

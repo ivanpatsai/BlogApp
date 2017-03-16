@@ -3,7 +3,7 @@
 <div class="ui grid">
     <div class="ui main text container segment">
         <h1 class="ui header huge">Edit User</h1>
-        <form class="ui form" action="/id<%= user._id %>/edit?_method=PUT" method="post">
+        <form class="ui form" action="/id<%= user._id %>/edit?_method=PUT" method="post" enctype="multipart/form-data">
             <div class="field">
                 <label>First Name</label>
                 <input type="text" name="user[fname]" placeholder="First Name" value="<%= user.fname %>">
@@ -13,8 +13,8 @@
                 <input type="text" name="user[lname]" placeholder="Last Name" value="<%= user.lname %>">
             </div>
             <div class="field">
-                <label>Image</label>
-                <input type="text" name="user[image]" placeholder="Image url" value="<%= user.image %>">
+                <label for="file">Select Image</label>
+                <input type="file" id="file" name="image">
             </div>
             <button class="ui right floated black small button">Submit</button>
         </form>

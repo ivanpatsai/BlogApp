@@ -3,7 +3,7 @@
 <div class="ui grid">
     <div class="ui main text container segment">
         <h1 class="ui header huge">Registration form</h1>
-        <form class="ui form" action="/register" method="post">
+        <form class="ui form" action="/register" method="post" enctype="multipart/form-data">
             <div class="field">
                 <label>First Name</label>
                 <input type="text" name="user[fname]" placeholder="First Name">
@@ -13,8 +13,8 @@
                 <input type="text" name="user[lname]" placeholder="Last Name">
             </div>
             <div class="field">
-                <label>Image</label>
-                <input type="text" name="user[image]" placeholder="Image url">
+                <label for="file">Select Image</label>
+                <input type="file" id="file" name="image">
             </div>
             <div class="field">
                 <label>Username</label>

@@ -5,7 +5,7 @@
         <div class="ui huge header"><%= blog.title %></div>
         <div class="ui top attached">
             <div class="item">
-                <img class="ui big centered rounded image" src="<%= blog.image %>" alt="image">
+                <img class="ui big centered rounded image" src="<%= blog.image.url %>" alt="image">
                 <div class="content">
                     <span> <%= blog.created.toDateString() %> </span>
                 </div>
@@ -27,7 +27,7 @@
             <div class="ui attached segment" id="comment">
                 <div class="comment">
                     <a class="avatar">
-                        <img src="<%= comment.author.image %>">
+                        <img src="<%= comment.author.image.url %>">
                     </a>
                     <div class="content">
                         <a class="author"

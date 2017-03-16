@@ -5,7 +5,7 @@ var userSchema = new mongoose.Schema({
     lname: String,
     username: String,
     password: String,
-    image: String,
+    image: mongoose.Schema.Types.Mixed,
     //reference to blogs that are related with this user(for user homepage)
     blogs: [
         {

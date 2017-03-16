@@ -6,6 +6,8 @@ var User = require('./../models/user');
 var Comment = require('./../models/comment');
 var async = require('async');
 var middleware = require('./../middleware/index');
+var cloudinary = require('cloudinary');
+var fs = require('fs');
 
 //returns all available blogs in db
 router.get('/', function (req, res) {
@@ -20,27 +22,40 @@ router.get('/', function (req, res) {
 
 //create new blog
 router.post('/', middleware.isLoggedIn, function (req, res) {
-    //scripts is not allowed in blog body
-    req.body.blog.body = req.sanitize(req.body.blog.body);
-    //looking for user in db
-    User.findById(req.user.id, function (err, foundUser) {
-        if (err) {
-            console.log(err);
-        } else {
-            //save blog in db
-            Blog.create(req.body.blog, function (err, newBlog) {
-                if (err) {
-                    console.log(err)
-                } else {
-                    //update users blogs array
-                    foundUser.blogs.push(newBlog);
-                    foundUser.save();
-                    res.redirect('/blogs');
-                }
-            })
-        }
-    })
+    //upload image to cloud
+    cloudinary.uploader.upload(req.file.path, function (results) {
+        //delete file from tmp folder
+        fs.unlink(req.file.path);
+        //add to blog obj image cloud link
+        req.body.blog.image = results;
+        //scripts is not allowed in blog body
+        req.body.blog.body = req.sanitize(req.body.blog.body);
+        //looking for user in db
+        User.findById(req.user.id, function (err, foundUser) {
+            if (err) {
+                console.log(err);
+            } else {
+                //save blog in db
+                Blog.create(req.body.blog, function (err, newBlog) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        //update blog author obj
+                        newBlog.author.id = req.user._id;
+                        newBlog.author.fname = req.user.fname;
+                        newBlog.author.lname = req.user.lname;
+                        newBlog.author.image = req.user.image;
+                        newBlog.save();
 
+                        //update users blogs array
+                        foundUser.blogs.push(newBlog);
+                        foundUser.save();
+                        res.redirect('/blogs');
+                    }
+                })
+            }
+        })
+    }, {type: "private", folder: "blogs/"});
 });
 //return page to create new blog
 router.get('/new', middleware.isLoggedIn, function (req, res) {
@@ -75,7 +90,23 @@ router.put('/:id', middleware.checkBlogOwnership, function (req, res) {
         if (err) {
             console.log(err);
         } else {
-            res.redirect('/blogs/' + updatedBlog._id);
+            if (req.file) {
+                cloudinary.uploader.destroy(updatedBlog.image.public_id, function (result) {
+                    cloudinary.uploader.upload(req.file.path, function (results) {
+                        //delete file from tmp folder
+                        fs.unlink(req.file.path);
+                        //add to blog obj image cloud link
+                        updatedBlog.image = results;
+                        updatedBlog.save(function () {
+                            res.redirect('/blogs/' + updatedBlog._id);
+                        });
+
+                    }, {type: "private", folder: "blogs/"});
+
+                }, {type: "private"});
+            } else {
+                res.redirect('/blogs/' + updatedBlog._id);
+            }
         }
     })
 });
@@ -85,46 +116,49 @@ router.delete('/:id', middleware.checkBlogOwnership, function (req, res) {
         if (err) {
             console.log(err);
         } else {
-            async.series([
-                function (callback) {
-                    //async remove for comments array
-                    async.each(blog.comments, function (comment, callback) {
-                        Comment.findByIdAndRemove(comment, function (err) {
+            cloudinary.uploader.destroy(blog.image.public_id, function (result) {
+                async.series([
+                    function (callback) {
+                        //async remove for comments array
+                        async.each(blog.comments, function (comment, callback) {
+                            Comment.findByIdAndRemove(comment, function (err) {
+                                if (err) {
+                                    console.log(err);
+                                    callback('Cant find a comment')
+                                } else {
+                                    callback();
+                                }
+                            })
+                        }, function (err) {
                             if (err) {
-                                console.log(err);
-                                callback('Cant find a comment')
+                                console.log('A file failed to process!');
                             } else {
+                                console.log('All comments have been removed successfully!');
                                 callback();
                             }
                         })
-                    }, function (err) {
-                        if (err) {
-                            console.log('A file failed to process!');
-                        } else {
-                            console.log('All comments have been removed successfully!');
+                    },
+                    //Remove blogId from foundUser blogs arr
+                    function (callback) {
+                        User.findById(req.user.id, function (err, foundUser) {
+                            var index = foundUser.blogs.indexOf(blog._id);
+                            if (index > -1) {
+                                foundUser.blogs.splice(index, 1);
+                                foundUser.save();
+                            } else {
+                                console.log('No such element');
+                            }
                             callback();
-                        }
-                    })
-                },
-                //Remove blogId from foundUser blogs arr
-                function (callback) {
-                    User.findById(req.user.id, function(err, foundUser){
-                        var index = foundUser.blogs.indexOf(blog._id);
-                        if (index > -1) {
-                            foundUser.blogs.splice(index, 1);
-                            foundUser.save();
-                        } else {
-                            console.log('No such element');
-                        }
+                        })
+                    },
+                    function (callback) {
+                        console.log('Blog removed!');
+                        res.redirect('/blogs');
                         callback();
-                    })
-                },
-                function (callback) {
-                    console.log('Blog removed!');
-                    res.redirect('/blogs');
-                    callback();
-                }
-            ]);
+                    }
+                ]);
+                console.log('Blog image removed from cloud!');
+            }, {type: "private"});
         }
     })
 });

@@ -3,20 +3,20 @@
 <div class="ui grid">
     <div class="ui main text container segment">
         <div class="ui huge header">New Post</div>
-        <form class="ui form" action="/blogs" method="post">
+        <form class="ui form" action="/blogs" method="post" enctype="multipart/form-data">
             <div class="field">
                 <label>Title</label>
                 <input type="text" name="blog[title]" placeholder="title">
             </div>
             <div class="field">
-                <label>Image</label>
-                <input type="text" name="blog[image]" placeholder="image URL">
+                <label for="file">Select Image</label>
+                <input type="file" id="file" name="image">
             </div>
             <div class="field">
                 <label>Post Content</label>
                 <textarea name="blog[body]"></textarea>
             </div>
-            <input type="submit" class="ui black button fluid">
+            <button class="ui fluid black button">Submit</button>
         </form>
     </div>
 </div>

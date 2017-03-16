@@ -14,7 +14,7 @@ var commentSchema = new mongoose.Schema({
         },
         fname: String,
         lname: String,
-        image: String
+        image: mongoose.Schema.Types.Mixed
     }
 });
 

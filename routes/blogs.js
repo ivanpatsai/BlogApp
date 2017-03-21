@@ -50,7 +50,7 @@ router.post('/', middleware.isLoggedIn, function (req, res) {
                         //update users blogs array
                         foundUser.blogs.push(newBlog);
                         foundUser.save();
-                        res.redirect('/blogs');
+                        res.redirect('/blogs/' + newBlog._id);
                     }
                 })
             }
@@ -133,7 +133,6 @@ router.delete('/:id', middleware.checkBlogOwnership, function (req, res) {
                             if (err) {
                                 console.log('A file failed to process!');
                             } else {
-                                console.log('All comments have been removed successfully!');
                                 callback();
                             }
                         })
@@ -152,12 +151,10 @@ router.delete('/:id', middleware.checkBlogOwnership, function (req, res) {
                         })
                     },
                     function (callback) {
-                        console.log('Blog removed!');
                         res.redirect('/blogs');
                         callback();
                     }
                 ]);
-                console.log('Blog image removed from cloud!');
             }, {type: "private"});
         }
     })

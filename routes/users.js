@@ -81,7 +81,7 @@ router.get('/id:id/edit', middleware.checkUserOwnership, function (req, res) {
 });
 
 //save updates in db
-router.put('/id:id/edit', middleware.checkUserOwnership, function (req, res) {
+router.put('/id:id', middleware.checkUserOwnership, function (req, res) {
     User.findByIdAndUpdate(req.params.id, req.body.user, function (err, user) {
         if (err) {
             console.log(err);
@@ -138,10 +138,8 @@ router.delete('/id:id', middleware.checkUserOwnership, function (req, res) {
                                     if (err) {
                                         console.log('A file failed to process!');
                                     } else {
-                                        console.log('All comments have been removed successfully!')
                                     }
                                 });
-                                    console.log('Blog image removed from cloud!');
                                     callback();
                                 }, {type: "private"});
                             }
@@ -150,15 +148,12 @@ router.delete('/id:id', middleware.checkUserOwnership, function (req, res) {
                         if (err) {
                             console.log('A file failed to process!');
                         } else {
-                            console.log('All blogs have been removed successfully!');
                             callback();
                         }
                     });
                 },
                 //redirect after removing all data
                 function (callback) {
-                    console.log('User image removed from cloud!');
-                    console.log('User removed!');
                     res.redirect('/');
                     callback();
                 }

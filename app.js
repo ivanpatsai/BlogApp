@@ -11,9 +11,11 @@ var seedDB = require('./seed');
 var cloudinary = require('cloudinary');
 var multer = require('multer');
 var fs = require('fs');
+var morgan = require('morgan');
+var flash = require('connect-flash');
 
 //wipe db and fill up with new data
-// seedDB();
+//seedDB();
 
 //requiring routes
 var commentRoutes = require('./routes/comments');
@@ -27,6 +29,8 @@ mongoose.connect(process.env.MONGODB_URI);
 app.set('view engine', 'ejs');
 //path to static folder
 app.use(express.static(__dirname + '/public'));
+// app.use(morgan('dev'));
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 //prevent scripts in entered data
 app.use(expressSanitizer());
@@ -41,6 +45,7 @@ app.use(require('express-session')({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 
 //use static authenticate method of model in LocalStrategy
 passport.use(new LocalStrategy(User.authenticate()));
@@ -66,3 +71,5 @@ app.use('/blogs', blogRoutes);
 app.listen(process.env.PORT, function () {
     console.log('Server is up on port ' + process.env.PORT + '!');
 });
+
+module.exports = app;

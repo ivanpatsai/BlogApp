@@ -2,6 +2,7 @@ var expect = require('expect');
 var request = require('supertest');
 var app = require('./../app');
 var agent = request.agent(app);
+var noAvatarAgent = request.agent(app);
 var User = require('./../models/user');
 var Blog = require('./../models/blog');
 var Comment = require('./../models/comment');
@@ -25,6 +26,8 @@ var cloudImageUserID;
 var cloudImageBlogID;
 var cloudImageUserPath;
 var cloudImageBlogPath;
+var noAvatarUserId;
+var blogNoImageId;
 var userId;
 var blogId;
 var commentId;
@@ -32,7 +35,7 @@ var commentId;
 //create user
 describe('User POST /register', function () {
     it('should create new user, session and redirect to user homepage', function (done) {
-        request(app)
+        agent
             .post('/register')
             .set('Content-Type', 'multipart/form-data')
             .attach('image', './tests/seeds/images/test1.png')
@@ -60,21 +63,32 @@ describe('User POST /register', function () {
                 });
             })
     });
+    it('should create new user with default avatar if user has not provide his picture', function (done) {
+        noAvatarAgent
+            .post('/register')
+            .set('Content-Type', 'multipart/form-data')
+            .field('username', user.username + 'test2')
+            .field('password', user.password)
+            .field('user[fname]', user.fname)
+            .field('user[lname]', user.lname)
+            .expect(302)
+            .end(function (err, res) {
+                expect(err).toNotExist();
+                expect(res.header.location).toInclude('/id');
+                expect(res.header['set-cookie']).toExist();
+                User.findOne({username: user.username + 'test2'}, function (err, foundUser) {
+                    if (err) {
+                        return done(err);
+                    }
+                    expect(foundUser.image.url).toExist();
+                    noAvatarUserId = foundUser._id;
+                    done();
+                });
+            })
+    });
 });
 //update user
 describe('User PUT /id:id', function () {
-    //create a  logged in user before put tests
-    before(function (done) {
-        agent
-            .post('/login')
-            .send({username: user.username, password: user.password})
-            .end(function (err, res) {
-                if (err) {
-                    return done(err);
-                }
-                return done()
-            });
-    });
     it('should not update user picture if image is not attached', function (done) {
         agent
             .put('/id' + userId)
@@ -178,7 +192,26 @@ describe('Blog POST /blogs', function () {
                 expect(result).toExist();
                 done();
             });
-    })
+    });
+    it('should create new blog without image from user', function (done) {
+        noAvatarAgent
+            .post('/blogs')
+            .set('Content-Type', 'multipart/form-data')
+            .field('blog[title]', blog.title + 'noimage')
+            .field('blog[body]', blog.body)
+            .expect(302)
+            .end(function (err, res) {
+                expect(err).toNotExist();
+                Blog.findOne({title: blog.title + 'noimage'}, function (err, foundBlog) {
+                    if (err) {
+                        return done(err);
+                    }
+                    expect(foundBlog.image).toNotExist();
+                    blogNoImageId = foundBlog._id;
+                    done();
+                });
+            })
+    });
 });
 
 //update blog
@@ -314,7 +347,7 @@ describe('User POST /login', function () {
                 done()
             })
     });
-    it('should not create a session and redirect to user homepage if credentials is invalid', function (done) {
+    it('should not create a session and redirect to /login if credentials is invalid', function (done) {
         request(app)
             .post('/login')
             .send({
@@ -331,7 +364,7 @@ describe('User POST /login', function () {
     });
 });
 
-//delete content
+//delete comment
 describe('Comment DELETE /blogs/:id/comments/comment_id', function () {
     after(function (done) {
         agent
@@ -416,11 +449,11 @@ describe('Blog DELETE /blogs/id:id', function () {
                 if (err) {
                     return done(err);
                 }
-                Blog.find({}, function (err, blogs) {
+                Blog.findOne({title: blog.title}, function (err, blog) {
                     if (err) {
                         done(err)
                     } else {
-                        expect(blogs.length).toBe(0);
+                        expect(blog).toNotExist();
                         done();
                     }
                 });
@@ -445,11 +478,42 @@ describe('Blog DELETE /blogs/id:id', function () {
             expect(user.blogs.length).toBe(0);
             done();
         })
+    });
+    it('should delete blog without image', function (done) {
+        noAvatarAgent
+            .delete('/blogs/' + blogNoImageId)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                Blog.findOne({title: blog.title + 'noimage'}, function (err, blog) {
+                    if (err) {
+                        done(err)
+                    } else {
+                        expect(blog).toNotExist();
+                        done();
+                    }
+                });
+            })
     })
 });
 
 //delete user
 describe('User DELETE /id:id', function () {
+    it('should not delete default picture from cloud', function (done) {
+        noAvatarAgent
+            .delete('/id' + noAvatarUserId)
+            .end(function (err, res) {
+                cloudinary.v2.uploader.explicit('default/aql5cfnce8kwn4czp8ls',
+                    {type: "private"},
+                    function (error, result) {
+                        expect(result).toExist();
+                        done();
+                    });
+
+
+            })
+    });
     it('should delete user', function (done) {
         agent
             .delete('/id' + userId)

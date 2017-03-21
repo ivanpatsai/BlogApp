@@ -1,10 +1,18 @@
 var mongoose = require('mongoose');
 var passportLocalMongoose = require('passport-local-mongoose');
 var userSchema = new mongoose.Schema({
-    fname: String,
-    lname: String,
-    username: String,
-    password: String,
+    fname: {
+        type: String
+    },
+    lname: {
+        type: String
+    },
+    username: {
+        type: String
+    },
+    password: {
+        type: String
+    },
     image: mongoose.Schema.Types.Mixed,
     //reference to blogs that are related with this user(for user homepage)
     blogs: [

@@ -5,7 +5,9 @@
         <div class="ui huge header"><%= blog.title %></div>
         <div class="ui top attached">
             <div class="item">
+                <% if (blog.image) { %>
                 <img class="ui big centered rounded image" src="<%= blog.image.url %>" alt="image">
+                <% } %>
                 <div class="content">
                     <span> <%= blog.created.toDateString() %> </span>
                 </div>

@@ -15,7 +15,7 @@ var morgan = require('morgan');
 var flash = require('connect-flash');
 
 //wipe db and fill up with new data
-//seedDB();
+seedDB();
 
 //requiring routes
 var commentRoutes = require('./routes/comments');

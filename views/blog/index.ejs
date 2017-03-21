@@ -7,9 +7,11 @@
             <div class="ui divided items">
                 <% blogs.forEach(function (blog) { %>
                 <div class="item">
+                    <% if (blog.image) { %>
                     <div class="image">
                         <img src="<%= blog.image.url %>" alt="image">
                     </div>
+                    <% } %>
                     <div class="content">
                         <a href="/blogs/<%= blog._id %>" class="header"><%= blog.title %></a>
                         <div class="meta">

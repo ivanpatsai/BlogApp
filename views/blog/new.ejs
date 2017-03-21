@@ -6,7 +6,7 @@
         <form class="ui form" action="/blogs" method="post" enctype="multipart/form-data">
             <div class="field">
                 <label>Title</label>
-                <input type="text" name="blog[title]" placeholder="title">
+                <input type="text" name="blog[title]" placeholder="title" required minlength="1" maxlength="256">
             </div>
             <div class="field">
                 <label for="file">Select Image</label>
@@ -14,7 +14,7 @@
             </div>
             <div class="field">
                 <label>Post Content</label>
-                <textarea name="blog[body]"></textarea>
+                <textarea name="blog[body]" required minlength="1"></textarea>
             </div>
             <button class="ui fluid black button">Submit</button>
         </form>

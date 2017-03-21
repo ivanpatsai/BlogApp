@@ -4,6 +4,7 @@ var Blog = require('./models/blog');
 var Comment = require('./models/comment');
 var passport = require('passport');
 var async = require('async');
+var cloudinary = require('cloudinary');
 
 //seed data
 var comments = [
@@ -111,134 +112,148 @@ function seedDB() {
         },
         //create user 1
         function (callback) {
-            User.register(users[0], 'password', function (err, newUser) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    //async each to create blogs for user
-                    async.each(blogs1, function (blog, callback) {
-                        Blog.create(blog, function (err, newBlog) {
-                            if (err) {
-                                console.log(err);
-                            } else {
-                                //async each to create comments for blog
-                                async.each(comments, function (comment, callback) {
-                                    Comment.create(comment, function (err, newComment) {
-                                        if (err) {
-                                            console.log(err);
-                                        } else {
-                                            //save data for comment
-                                            newComment.author.id = newUser._id;
-                                            newComment.author.fname = newUser.fname;
-                                            newComment.author.lname = newUser.lname;
-                                            newComment.author.image = newUser.image;
-                                            newComment.save();
+            cloudinary.uploader.upload(users[0].image, function (results) {
+                users[0].image = results;
+                User.register(users[0], 'password', function (err, newUser) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        //async each to create blogs for user
+                        async.each(blogs1, function (blog, callback) {
+                            cloudinary.uploader.upload(blog.image, function (results) {
+                                blog.image = results;
 
-                                            //pushing comments into blog comments array
-                                            newBlog.comments.push(newComment._id);
-                                            //callback to end each for comments
-                                            callback();
+                            Blog.create(blog, function (err, newBlog) {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    //async each to create comments for blog
+                                    async.each(comments, function (comment, callback) {
+                                        Comment.create(comment, function (err, newComment) {
+                                            if (err) {
+                                                console.log(err);
+                                            } else {
+                                                //save data for comment
+                                                newComment.author.id = newUser._id;
+                                                newComment.author.fname = newUser.fname;
+                                                newComment.author.lname = newUser.lname;
+                                                newComment.author.image = newUser.image;
+                                                newComment.save();
+
+                                                //pushing comments into blog comments array
+                                                newBlog.comments.push(newComment._id);
+                                                //callback to end each for comments
+                                                callback();
+                                            }
+                                        });
+                                        //function which invokes after Each loop for comments completes
+                                    }, function (err) {
+                                        if (err) {
+                                            console.log("Can't create comment");
+                                        } else {
+                                            //save data for blog after all comments for this blog were created
+                                            newBlog.author.id = newUser._id;
+                                            newBlog.author.fname = newUser.fname;
+                                            newBlog.author.lname = newUser.lname;
+                                            newBlog.author.image = newUser.image;
+                                            newBlog.save();
+                                            console.log('Comments created!');
                                         }
                                     });
-                                    //function which invokes after Each loop for comments completes
-                                }, function (err) {
-                                    if (err) {
-                                        console.log("Can't create comment");
-                                    } else {
-                                        //save data for blog after all comments for this blog were created
-                                        newBlog.author.id = newUser._id;
-                                        newBlog.author.fname = newUser.fname;
-                                        newBlog.author.lname = newUser.lname;
-                                        newBlog.author.image = newUser.image;
-                                        newBlog.save();
-                                        console.log('Comments created!');
-                                    }
-                                });
 
-                                //pushing new blogs into user array
-                                newUser.blogs.push(newBlog);
-                                callback();
+                                    //pushing new blogs into user array
+                                    newUser.blogs.push(newBlog);
+                                    callback();
+                                }
+                            });
+                            }, {type: "private", folder: 'blogs/'});
+                            //function which invokes after Each loop for blogs completes
+                        }, function (err) {
+                            if (err) {
+                                console.log("Can't add blogs");
+                            } else {
+                                //save data for user after all blogs were created
+                                newUser.save();
+                                console.log('Blogs Added!')
                             }
                         });
-                        //function which invokes after Each loop for blogs completes
-                    }, function (err) {
-                        if (err) {
-                            console.log("Can't add blogs");
-                        } else {
-                            //save data for user after all blogs were created
-                            newUser.save();
-                            console.log('Blogs Added!')
-                        }
-                    });
-                    callback();
-                }
-            })
+                        callback();
+                    }
+                })
+            }, {type: "private", folder: 'users/'});
         },
 
         //create user 2
         function (callback) {
-            User.register(users[1], 'password', function (err, newUser) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    //async each to create blogs for user
-                    async.each(blogs2, function (blog, callback) {
-                        Blog.create(blog, function (err, newBlog) {
-                            if (err) {
-                                console.log(err);
-                            } else {
-                                //async each to create comments for blog
-                                async.each(comments, function (comment, callback) {
-                                    Comment.create(comment, function (err, newComment) {
-                                        if (err) {
-                                            console.log(err);
-                                        } else {
-                                            //save data for comment
-                                            newComment.author.id = newUser._id;
-                                            newComment.author.fname = newUser.fname;
-                                            newComment.author.lname = newUser.lname;
-                                            newComment.author.image = newUser.image;
-                                            newComment.save();
+            cloudinary.uploader.upload(users[1].image, function (results) {
+                users[1].image = results;
+                User.register(users[1], 'password', function (err, newUser) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        //async each to create blogs for user
+                        async.each(blogs2, function (blog, callback) {
+                            cloudinary.uploader.upload(blog.image, function (results) {
+                                blog.image = results;
 
-                                            //pushing comments into blog comments array
-                                            newBlog.comments.push(newComment._id);
-                                            //callback to end each for comments
-                                            callback();
-                                        }
-                                    });
-                                    //function which invokes after Each loop for comments completes
-                                }, function (err) {
+                                Blog.create(blog, function (err, newBlog) {
                                     if (err) {
-                                        console.log("Can't create comment");
+                                        console.log(err);
                                     } else {
-                                        //save data for blog after all comments for this blog were created
-                                        newBlog.author.id = newUser._id;
-                                        newBlog.author.fname = newUser.fname;
-                                        newBlog.author.lname = newUser.lname;
-                                        newBlog.author.image = newUser.image;
-                                        newBlog.save();
-                                        console.log('Comments created!');
+                                        //async each to create comments for blog
+                                        async.each(comments, function (comment, callback) {
+                                            Comment.create(comment, function (err, newComment) {
+                                                if (err) {
+                                                    console.log(err);
+                                                } else {
+                                                    //save data for comment
+                                                    newComment.author.id = newUser._id;
+                                                    newComment.author.fname = newUser.fname;
+                                                    newComment.author.lname = newUser.lname;
+                                                    newComment.author.image = newUser.image;
+                                                    newComment.save();
+
+                                                    //pushing comments into blog comments array
+                                                    newBlog.comments.push(newComment._id);
+                                                    //callback to end each for comments
+                                                    callback();
+                                                }
+                                            });
+                                            //function which invokes after Each loop for comments completes
+                                        }, function (err) {
+                                            if (err) {
+                                                console.log("Can't create comment");
+                                            } else {
+                                                //save data for blog after all comments for this blog were created
+                                                newBlog.author.id = newUser._id;
+                                                newBlog.author.fname = newUser.fname;
+                                                newBlog.author.lname = newUser.lname;
+                                                newBlog.author.image = newUser.image;
+                                                newBlog.save();
+                                                console.log('Comments created!');
+                                            }
+                                        });
+
+                                        //pushing new blogs into user array
+                                        newUser.blogs.push(newBlog);
+                                        callback();
                                     }
                                 });
-
-                                //pushing new blogs into user array
-                                newUser.blogs.push(newBlog);
-                                callback();
+                            }, {type: "private", folder: 'blogs/'});
+                            //function which invokes after Each loop for blogs completes
+                        }, function (err) {
+                            if (err) {
+                                console.log("Can't add blogs");
+                            } else {
+                                //save data for user after all blogs were created
+                                newUser.save();
+                                console.log('Blogs Added!')
                             }
                         });
-                        //function which invokes after Each loop for blogs completes
-                    }, function (err) {
-                        if (err) {
-                            console.log("Can't add blogs");
-                        } else {
-                            //save data for user after all blogs were created
-                            newUser.save();
-                            console.log('Blogs Added!')
-                        }
-                    });
-                    callback();
-                }
-            })
+                        callback();
+                    }
+                })
+            }, {type: "private", folder: 'users/'});
         }
     ]);
 }

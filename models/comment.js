@@ -1,7 +1,13 @@
 var mongoose = require('mongoose');
 
 var commentSchema = new mongoose.Schema({
-    text: String,
+    text: {
+        type: String,
+        required: true,
+        minlength: 1,
+        maxlength: 256,
+        trim: true
+    },
     created: {
         type: Date,
         default: Date.now

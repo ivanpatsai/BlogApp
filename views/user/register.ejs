@@ -6,11 +6,11 @@
         <form class="ui form" action="/register" method="post" enctype="multipart/form-data">
             <div class="field">
                 <label>First Name</label>
-                <input type="text" name="user[fname]" placeholder="First Name">
+                <input type="text" name="user[fname]" placeholder="First Name" required minlength="1" maxlength="20">
             </div>
             <div class="field">
                 <label>Last Name</label>
-                <input type="text" name="user[lname]" placeholder="Last Name">
+                <input type="text" name="user[lname]" placeholder="Last Name" required minlength="1" maxlength="20">
             </div>
             <div class="field">
                     <label>Image</label>
@@ -18,11 +18,11 @@
             </div>
             <div class="field">
                 <label>Username</label>
-                <input type="text" name="username" placeholder="Username">
+                <input type="text" name="username" placeholder="Username" required minlength="1" maxlength="20">
             </div>
             <div class="field">
                 <label>Password</label>
-                <input type="password" name="password" placeholder="Password">
+                <input type="password" name="password" placeholder="Password" required minlength="6" maxlength="20">
             </div>
             <button class="ui right floated black small button">Submit</button>
         </form>

@@ -3,10 +3,10 @@
 <div class="ui grid">
     <div class="ui main text container segment">
         <div class="ui huge header">Edit <%= blog.title %></div>
-        <form class="ui form" action="/blogs/<%= blog._id %>?_method=PUT" method="post", enctype="multipart/form-data">
+        <form class="ui form" action="/blogs/<%= blog._id %>?_method=PUT" method="post" enctype="multipart/form-data">
             <div class="field">
                 <label>Title</label>
-                <input type="text" name="blog[title]" value="<%= blog.title %>">
+                <input type="text" name="blog[title]" value="<%= blog.title %>" required minlength="1" maxlength="256">
             </div>
 
                 <div class="field">
@@ -16,7 +16,7 @@
 
             <div class="field">
                 <label>Blog Content</label>
-                <textarea name="blog[body]"><%= blog.body %></textarea>
+                <textarea name="blog[body]" required minlength="1"><%= blog.body %></textarea>
             </div>
             <input type="submit" class="ui black button fluid">
         </form>

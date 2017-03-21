@@ -21,9 +21,11 @@
                 <div class="ui top attached segment">
                     <div class="ui items">
                         <div class="item">
+                            <% if (blog.image) { %>
                             <div class="ui small image">
                                 <img src="<%= blog.image.url %>" alt="image">
                             </div>
+                            <% } %>
                             <div class="content">
                                 <a href="/blogs/<%= blog._id %>" class="header"><%= blog.title %></a>
                                 <div class="meta">

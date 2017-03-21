@@ -2,9 +2,20 @@ var mongoose = require('mongoose');
 
 var blogSchema = new mongoose.Schema(
     {
-        title: String,
+        title: {
+            type: String,
+            minlength: 1,
+            maxlength: 256,
+            required: true,
+            trim: true
+        },
         image: mongoose.Schema.Types.Mixed,
-        body: String,
+        body: {
+            type: String,
+            minlength: 1,
+            required: true,
+            trim: true
+        },
         //reference to user that created this blog
         author: {
             id: {

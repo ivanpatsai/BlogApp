@@ -3,14 +3,14 @@
 <div class="ui grid">
     <div class="ui main text container segment">
         <h1 class="ui header huge">Edit User</h1>
-        <form class="ui form" action="/id<%= user._id %>/edit?_method=PUT" method="post" enctype="multipart/form-data">
+        <form class="ui form" action="/id<%= user._id %>?_method=PUT" method="post" enctype="multipart/form-data">
             <div class="field">
                 <label>First Name</label>
-                <input type="text" name="user[fname]" placeholder="First Name" value="<%= user.fname %>">
+                <input type="text" name="user[fname]" placeholder="First Name" value="<%= user.fname %>" required minlength="1" maxlength="20">
             </div>
             <div class="field">
                 <label>Last Name</label>
-                <input type="text" name="user[lname]" placeholder="Last Name" value="<%= user.lname %>">
+                <input type="text" name="user[lname]" placeholder="Last Name" value="<%= user.lname %>" required minlength="1" maxlength="20">
             </div>
             <div class="field">
                 <label for="file">Select Image</label>

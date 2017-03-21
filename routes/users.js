@@ -16,32 +16,48 @@ router.get('/register', function (req, res) {
 
 //create new user in db and automatically authenticates and redirects him to user homepage
 router.post('/register', function (req, res) {
-    //upload image to cloud
-    cloudinary.uploader.upload(req.file.path, function (results) {
-        //delete file from tmp folder
-        fs.unlink(req.file.path);
-        //add to blog obj image cloud link
-        req.body.user.image = results;
-        User.register(new User({username: req.body.username}), req.body.password, function (err, registeredUser) {
-            if (err) {
-                console.log(err);
-                res.render('user/register');
-            } else {
-                //authentication of newly created user
-                passport.authenticate('local')(req, res, function () {
-                    registeredUser.fname = req.body.user.fname;
-                    registeredUser.lname = req.body.user.lname;
-                    registeredUser.image = req.body.user.image;
-                    registeredUser.save(function (err, updatedUser) {
-                        if (err) {
-                            return console.log(err);
-                        }
-                        res.redirect('/id' + (updatedUser._id).valueOf());
-                    })
-                });
-            }
-        })
-    }, {type: "private", folder: 'users/'});
+    User.register(new User({username: req.body.username}), req.body.password, function (err, registeredUser) {
+        if (err) {
+            console.log(err);
+            res.render('user/register');
+        } else {
+            async.series([
+                function (callback) {
+                    if (req.file) {
+                        //upload image to cloud
+                        cloudinary.uploader.upload(req.file.path, function (results) {
+                            //delete file from tmp folder
+                            fs.unlink(req.file.path);
+                            //add to blog obj image cloud link
+                            req.body.user.image = results;
+                            callback();
+                        }, {type: "private", folder: 'users/'});
+                    } else {
+                        //default image for all users without avatar
+                        req.body.user.image = {
+                            url: "http://res.cloudinary.com/dy6cppmqt/image/private/s--93FNjiKu--/v1490115737/default/aql5cfnce8kwn4czp8ls.png"
+                        };
+                        callback();
+                    }
+                },
+                function (callback) {
+                    //authentication of newly created user
+                    passport.authenticate('local')(req, res, function () {
+                        registeredUser.fname = req.body.user.fname;
+                        registeredUser.lname = req.body.user.lname;
+                        registeredUser.image = req.body.user.image;
+                        registeredUser.save(function (err, updatedUser) {
+                            if (err) {
+                                return console.log(err);
+                            }
+                            res.redirect('/id' + (updatedUser._id).valueOf());
+                            callback();
+                        })
+                    });
+                }
+            ]);
+        }
+    })
 });
 
 //load login page
@@ -113,52 +129,77 @@ router.delete('/id:id', middleware.checkUserOwnership, function (req, res) {
         if (err) {
             return console.log(err);
         }
-        cloudinary.uploader.destroy(user.image.public_id, function (result) {
-            async.series([
-                function (callback) {
-                    //async remove for blogs array
-                    async.each(user.blogs, function (blog, callback) {
-                        Blog.findByIdAndRemove(blog, function (err, blog) {
-                            if (err) {
-                                console.log(err);
-                                callback('Cant find a blog')
-                            } else {
-                                cloudinary.uploader.destroy(blog.image.public_id, function (result) {
+        async.series([
+            function (callback) {
+                //async remove for blogs array
+                async.each(user.blogs, function (blog, callback) {
+                    Blog.findByIdAndRemove(blog, function (err, blog) {
+                        if (err) {
+                            console.log(err);
+                            callback('Cant find a blog')
+                        } else {
+                            async.series([
+                                //if blog has image it will be removed from cloud
+                                function (callback) {
+                                    if (blog.image) {
+                                        cloudinary.uploader.destroy(blog.image.public_id, function (result) {
+                                            callback();
+                                        }, {type: "private"});
+                                    } else {
+                                        callback();
+                                    }
+                                },
+                                function (callback) {
                                     //async remove for comments array
-                                async.each(blog.comments, function (comment, callback) {
-                                    Comment.findByIdAndRemove(comment, function (err) {
+                                    async.each(blog.comments, function (comment, callback) {
+                                        Comment.findByIdAndRemove(comment, function (err) {
+                                            if (err) {
+                                                console.log(err);
+                                                callback('Cant find a comment')
+                                            } else {
+                                                callback();
+                                            }
+                                        })
+                                    }, function (err) {
                                         if (err) {
-                                            console.log(err);
-                                            callback('Cant find a comment')
+                                            console.log('A file failed to process!');
                                         } else {
                                             callback();
+
                                         }
-                                    })
-                                }, function (err) {
-                                    if (err) {
-                                        console.log('A file failed to process!');
-                                    } else {
-                                    }
-                                });
-                                    callback();
-                                }, {type: "private"});
-                            }
-                        })
-                    }, function (err) {
-                        if (err) {
-                            console.log('A file failed to process!');
-                        } else {
+                                    });
+                                }
+
+                            ]);
                             callback();
                         }
-                    });
-                },
-                //redirect after removing all data
-                function (callback) {
-                    res.redirect('/');
+                    })
+                }, function (err) {
+                    if (err) {
+                        console.log('A file failed to process!');
+                    } else {
+                        callback();
+                    }
+                });
+            },
+            //remove user avatar from cloud if it is not a default picture
+            function (callback) {
+                if (user.image.public_id) {
+                    cloudinary.uploader.destroy(user.image.public_id, function (result) {
+                        callback();
+                    }, {type: "private"});
+                } else {
                     callback();
                 }
-            ]);
-        }, {type: "private"});
+
+            },
+            //redirect after removing all data
+            function (callback) {
+                res.redirect('/');
+                callback();
+            }
+        ]);
+
     })
 });
 

@@ -1,12 +1,12 @@
 # BlogApp
 Web app with user authentication. 
 
-#### Demo
+### Demo
 <a href="https://mighty-tundra-77114.herokuapp.com/blogs" target="_blank">Demo Link</a>
 **login:** omar
 **password:** password
 
-#### Features
+### Features
 User can:
 - Register
 - Login/Logout
@@ -17,7 +17,7 @@ User can:
 
 App is deployed on [Heroku], database - [mLab], photo storage - [Cloudinary]
 
-#### Technologies: 
+### Technologies: 
 - [NodeJS] 
 - [Express.js] 
 - [SemanticUI] 
